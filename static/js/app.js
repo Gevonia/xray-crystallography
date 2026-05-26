@@ -28,6 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupUploadZone();
   refreshJobList();
   refreshEngines();
+  refreshPhenixPath();
 });
 
 // --- Toast ---
@@ -293,4 +294,34 @@ function setStatus(state) {
   const dot = document.getElementById('sysDot');
   dot.className = 'status-dot ' + (state === 'processing' ? 'processing' : 'ready');
   document.getElementById('sysLabel').textContent = state === 'processing' ? 'Processing...' : 'Ready';
+}
+
+// -- PHENIX path management --
+
+async function refreshPhenixPath() {
+  try {
+    var resp = await fetch('/api/system/phenix-path');
+    var data = await resp.json();
+    document.getElementById('phenixPathDisplay').textContent =
+      (data.resolved_path || 'Not found') + ' (' + (data.detection_source || '?') + ')';
+    document.getElementById('phenixPathInput').value = data.resolved_path || '';
+  } catch (e) { /* ignore */ }
+}
+
+async function setPhenixPath() {
+  var path = document.getElementById('phenixPathInput').value.trim();
+  try {
+    var resp = await fetch('/api/system/phenix-path', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ path: path || null }),
+    });
+    var data = await resp.json();
+    document.getElementById('phenixPathDisplay').textContent =
+      (data.resolved_path || 'Not found') + (data.available ? ' (ok)' : ' (invalid)');
+    refreshEngines();
+    showToast(data.available ? 'PHENIX path updated' : 'Path invalid — PHENIX not found', data.available ? 'success' : 'error');
+  } catch (e) {
+    showToast(e.message, 'error');
+  }
 }

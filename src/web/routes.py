@@ -187,3 +187,32 @@ def system_dependencies():
 @api_bp.route("/system/config", methods=["GET"])
 def system_config():
     return jsonify(_orchestrator().config.to_dict())
+
+
+# -- PHENIX path management --
+
+@api_bp.route("/system/phenix-path", methods=["GET"])
+def get_phenix_path():
+    from src.pipeline.phenix_paths import (
+        get_resolved_path, get_detection_source, has_phenix, list_available_tools,
+    )
+    return jsonify({
+        "resolved_path": get_resolved_path(),
+        "detection_source": get_detection_source(),
+        "available": has_phenix(),
+        "tools_count": len(list_available_tools()),
+    })
+
+
+@api_bp.route("/system/phenix-path", methods=["POST"])
+def set_phenix_path():
+    from src.pipeline.phenix_paths import (
+        configure_phenix_path, get_resolved_path, has_phenix,
+    )
+    data = request.get_json(silent=True) or {}
+    path = data.get("path")
+    configure_phenix_path(path)
+    return jsonify({
+        "resolved_path": get_resolved_path(),
+        "available": has_phenix(),
+    })

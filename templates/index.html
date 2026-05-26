@@ -150,6 +150,17 @@ body{background:var(--bg-base);color:var(--text-primary);font-family:var(--font-
         <div style="font-size:9px;color:var(--text-dim)">Loading...</div>
       </div>
     </div>
+
+    <div>
+      <div class="section-title">PHENIX Path</div>
+      <div style="font-family:var(--font-mono);font-size:9px;color:var(--text-secondary);word-break:break-all;margin-bottom:4px" id="phenixPathDisplay">Detecting...</div>
+      <div style="display:flex;gap:4px">
+        <input type="text" id="phenixPathInput" placeholder="D:\ProgramData\phenix-2.0-5936"
+               style="flex:1;background:var(--bg-input);border:1px solid var(--border);border-radius:4px;padding:4px 6px;font-family:var(--font-mono);font-size:9px;color:var(--text-primary);outline:none">
+        <button class="btn btn-sm btn-outline" onclick="setPhenixPath()">Set</button>
+      </div>
+      <button class="btn btn-sm btn-outline" style="margin-top:4px;width:100%" onclick="refreshPhenixPath()">Auto-Detect</button>
+    </div>
   </div>
 
   <!-- Main Area -->
