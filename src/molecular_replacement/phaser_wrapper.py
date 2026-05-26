@@ -1,7 +1,6 @@
-"""Molecular replacement via PHASER — subprocess wrapper with fallback."""
+"""Molecular replacement via PHASER — native Windows PHENIX subprocess wrapper."""
 import json
 import logging
-import shutil
 import subprocess
 from pathlib import Path
 
@@ -13,9 +12,11 @@ try:
 except ImportError:
     HAS_GEMMI = False
 
+from src.pipeline.phenix_paths import has_tool, get_phenix_cmd
+
 
 def _check_phaser() -> bool:
-    return shutil.which("phaser") is not None
+    return has_tool("phaser")
 
 
 def _run_phaser_subprocess(mtz_path: str, search_pdb: str, output_dir: Path,
@@ -41,10 +42,8 @@ ROOT {output_root}
 """
 
     keyword_file.write_text(keywords)
-    result = subprocess.run(
-        ["phaser", str(keyword_file)],
-        capture_output=True, text=True, timeout=3600,
-    )
+    cmd = get_phenix_cmd("phaser", str(keyword_file))
+    result = subprocess.run(cmd, capture_output=True, text=True, timeout=3600)
 
     if result.returncode != 0:
         logger.error("PHASER failed: %s", result.stderr[-500:])

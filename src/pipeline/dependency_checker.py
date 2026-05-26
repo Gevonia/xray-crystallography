@@ -1,6 +1,10 @@
 """Runtime detection of available crystallography engines."""
 import importlib
-import shutil
+from pathlib import Path
+
+from src.pipeline.phenix_paths import (
+    has_phenix, has_tool, phenix_bin, phenix_root,
+)
 
 
 class DependencyChecker:
@@ -22,18 +26,19 @@ class DependencyChecker:
 
     @staticmethod
     def check_phenix() -> bool:
-        return shutil.which("phenix.refine") is not None
+        return has_phenix()
 
     @staticmethod
     def check_phaser() -> bool:
-        return shutil.which("phaser") is not None
+        return has_tool("phaser")
 
     @staticmethod
     def check_ccp4() -> bool:
-        return shutil.which("ccp4-python") is not None
+        return has_tool("phaser")  # PHENIX bundles PHASER
 
     @classmethod
     def get_status(cls) -> dict:
+        root = phenix_root()
         return {
             "fabio": cls._check_module("fabio"),
             "dials": cls.check_dials(),
@@ -43,4 +48,6 @@ class DependencyChecker:
             "phenix": cls.check_phenix(),
             "phaser": cls.check_phaser(),
             "ccp4": cls.check_ccp4(),
+            "phenix_path": str(root) if root else None,
+            "phenix_bin": str(phenix_bin()) if phenix_bin() else None,
         }

@@ -1,11 +1,14 @@
-"""Structure validation (MolProbity-style metrics) — with fallback."""
+"""Structure validation (MolProbity-style metrics) — native Windows PHENIX wrapper."""
 import json
 import logging
+import subprocess
 from pathlib import Path
 
 import numpy as np
 
 logger = logging.getLogger(__name__)
+
+from src.pipeline.phenix_paths import has_tool, get_phenix_cmd
 
 
 def _compute_ramachandran_fallback(phi_psi_count: int = 100) -> dict:
@@ -28,14 +31,11 @@ def _compute_ramachandran_fallback(phi_psi_count: int = 100) -> dict:
 
 
 def _run_phenix_validation(pdb_path: str, output_dir: Path) -> dict:
-    """Run phenix.validation_cif or phenix.molprobity via subprocess."""
-    import shutil
-    import subprocess
-
-    if not shutil.which("phenix.molprobity"):
+    """Run phenix.molprobity via subprocess."""
+    if not has_tool("molprobity"):
         return _compute_ramachandran_fallback()
 
-    cmd = ["phenix.molprobity", pdb_path]
+    cmd = get_phenix_cmd("molprobity", pdb_path)
     result = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
     output = result.stdout + result.stderr
 

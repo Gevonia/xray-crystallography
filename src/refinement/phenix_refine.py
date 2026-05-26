@@ -1,16 +1,16 @@
-"""Structure refinement via phenix.refine — subprocess wrapper with fallback."""
+"""Structure refinement via phenix.refine — native Windows PHENIX subprocess wrapper."""
 import json
 import logging
-import shutil
 import subprocess
-import time
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
+from src.pipeline.phenix_paths import has_tool, get_phenix_cmd
+
 
 def _check_phenix() -> bool:
-    return shutil.which("phenix.refine") is not None
+    return has_tool("refine")
 
 
 def _run_phenix_refine(pdb_path: str, mtz_path: str, output_dir: Path,
@@ -19,14 +19,14 @@ def _run_phenix_refine(pdb_path: str, mtz_path: str, output_dir: Path,
     """Run phenix.refine via subprocess."""
     prefix = str(output_dir / "refined")
 
-    cmd = [
-        "phenix.refine",
+    cmd = get_phenix_cmd(
+        "refine",
         pdb_path, mtz_path,
         f"main.number_of_macro_cycles={n_macro_cycles}",
         f"refinement.main.strategy={strategy}",
         "ordered_solvent=True",
         f"output.prefix={prefix}",
-    ]
+    )
 
     result = subprocess.run(cmd, capture_output=True, text=True, timeout=7200)
 

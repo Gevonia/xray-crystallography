@@ -237,7 +237,20 @@ class PipelineOrchestrator:
     def _run_mr(self, job_id: str, job_dir: Path, step_dir: Path) -> dict:
         from src.molecular_replacement.phaser_wrapper import run_molecular_replacement
 
-        result = run_molecular_replacement(job_dir)
+        job = self.state_store.get_job(job_id) or {}
+        raw = job.get("params_json", "{}")
+        if isinstance(raw, str):
+            import json as _json
+            raw = _json.loads(raw)
+        params = raw if isinstance(raw, dict) else {}
+
+        result = run_molecular_replacement(
+            job_dir,
+            search_model_path=params.get("search_model_path"),
+            composition=params.get("composition"),
+            n_molecules=params.get("n_molecules", 1),
+            solvent_content=params.get("solvent_content", 0.5),
+        )
         self.state_store.update_job(job_id, {
             "mr_solution_found": result.get("solution_found"),
             "mr_llg": result.get("log_likelihood_gain"),
@@ -248,7 +261,14 @@ class PipelineOrchestrator:
     def _run_refine(self, job_id: str, job_dir: Path, step_dir: Path) -> dict:
         from src.refinement.phenix_refine import run_refinement
 
-        result = run_refinement(job_dir)
+        job = self.state_store.get_job(job_id) or {}
+        raw = job.get("params_json", "{}")
+        if isinstance(raw, str):
+            import json as _json
+            raw = _json.loads(raw)
+        params = raw if isinstance(raw, dict) else {}
+
+        result = run_refinement(job_dir, params=params.get("refinement"))
         self.state_store.update_job(job_id, {
             "rwork": result.get("rwork"),
             "rfree": result.get("rfree"),
