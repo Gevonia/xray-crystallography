@@ -1,0 +1,1 @@
+"""Diffraction image import and format detection via fabio."""

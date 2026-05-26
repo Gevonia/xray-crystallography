@@ -1,0 +1,17 @@
+name: xray-crystallography
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.12
+  - numpy>=1.24
+  - scipy>=1.11
+  - flask>=3.0
+  - matplotlib>=3.7
+  - dials>=3.21
+  - pip
+  - pip:
+    - fabio>=2024.0
+    - reciprocalspaceship>=2.0
+    - gemmi>=0.7
+    - pydantic>=2.0

@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+
+# Project runtime data
+data/uploads/*
+data/jobs/*
+data/*.db
+data/*.sqlite
+!data/uploads/.gitkeep
+!data/jobs/.gitkeep
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Conda
+.pixi/
